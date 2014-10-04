@@ -1,0 +1,67 @@
+= MiniExiftool
+
+This library is wrapper for the Exiftool command-line application
+(http://www.sno.phy.queensu.ca/~phil/exiftool) written by Phil Harvey.
+Read and write access is done in a clean OO manner.
+
+== Requirements
+
+Ruby 1.9 or higher and an installation of the Exiftool
+command-line application at least version 7.65.
+If you run on Ruby 1.8 or with a prior exiftool version
+install mini_exiftool version 1.x.x.
+Instructions for installation you can find under
+http://www.sno.phy.queensu.ca/~phil/exiftool/install.html .
+
+Alternatively Wil Gieseler has bundled a meta-gem that eliminates the
+need for a separate Exiftool installation. Have a look at
+http://github.com/wilg/mini_exiftool_vendored or
+http://rubygems.org/gems/mini_exiftool_vendored .
+
+== Installation
+
+First you need Exiftool (see under Requirements above). Then you can simply
+install the gem with
+ gem install mini_exiftool
+
+If you need to support older versions of Ruby or exiftool (see Requirements above)
+  gem install --version "< 2.0.0" mini_exiftool
+
+== Usage
+
+In general MiniExiftool is very intuitive to use as the following examples show:
+
+ # Reading meta data
+ photo = MiniExiftool.new 'photo.jpg'
+ puts photo.title
+
+ # Writing meta data
+ photo = MiniExiftool.new 'photo.jpg'
+ photo.title = 'This is the new title'
+ photo.save
+
+ # Copying meta data
+ photo = MiniExiftool.new('photo.jpg')
+ photo.copy_tags_from('another_photo.jpg', :author)
+
+
+For further information about using MiniExiftool read the Tutorial.rdoc
+in the project root folder and have a look at the examples in directory
+examples.
+
+== Contribution
+
+The code is hosted in a git repository on Gitorious at
+http://gitorious.org/mini_exiftool
+and github at
+https://github.com/janfri/mini_exiftool
+feel free to contribute!
+
+== Author
+Jan Friedrich <janfri26@gmail.com>
+
+== Copyright / License
+Copyright (c) 2007-2014 by Jan Friedrich
+
+Licensed under terms of the GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1,
+February 1999 (see file COPYING for more details)

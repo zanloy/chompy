@@ -1,0 +1,10 @@
+*.db
+*.gdbm
+coverage
+doc
+profile
+.DS_Store
+.yardoc
+Gemfile.lock
+*.rbc
+*.gem

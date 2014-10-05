@@ -9,7 +9,6 @@ require 'sinatra'
 root_dir = 'uploads'
 
 set :bind, '0.0.0.0'
-set :port, 1269
 
 # Helper functions
 def check_hash (md5)
@@ -26,20 +25,16 @@ def check_hash (md5)
 end
 
 # Sinatra routes
-get '/' do
-  "Index"
-end
-
 get '/check' do
   haml :check
 end
 
-get '/check/:hash' do |hash|
-  JSON.generate(check_hash(hash))
-end
-
 post '/check' do
   JSON.generate(check_hash(params['md5']))
+end
+
+get '/check/:hash' do |hash|
+  JSON.generate(check_hash(hash))
 end
 
 get '/upload' do

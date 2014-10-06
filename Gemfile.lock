@@ -4,10 +4,15 @@ GEM
     daybreak (0.3.0)
     haml (4.0.5)
       tilt
+    mime-types (2.3)
     mini_exiftool (2.4.2)
+    netrc (0.7.7)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -21,4 +26,5 @@ DEPENDENCIES
   daybreak
   haml
   mini_exiftool
+  rest-client
   sinatra

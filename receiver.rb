@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'daybreak'
+require 'fileutils'
 require 'haml'
 require 'json'
 require 'mini_exiftool'
@@ -16,7 +17,7 @@ def check_hash (md5)
   db = Daybreak::DB.new 'chompy.db'
   present = db.keys.include? md5
   if present
-    result = { uploaded: true, filename: db[md5][:filename], upload_date: db[md5][:upload_date] }
+    result = { uploaded: true, fileinfo: db[md5] }
   else
     result = { uploaded: false }
   end
@@ -42,17 +43,40 @@ get '/upload' do
 end
 
 post '/upload' do
+  # Validate input
+  return "Error: File not in params." if not params['file']
+  # Validate it is an image
+  return "Error: Filetype is not image/*" if not params['file'][:type] =~ /^image\//
+  # Process
   db = Daybreak::DB.new 'chompy.db'
   md5 = Digest::MD5.hexdigest(File.read(params['file'][:tempfile]))
   if not db.keys.include? md5
-    File.open(File.join(root_dir, params['file'][:filename]), 'w') do |f|
-      f.write(params['file'][:tempfile].read)
+    outcome = { uploaded: false }
+    begin
+      fileinfo = { filename: params['file'][:filename], md5: md5 }
+      fileinfo[:ext] = File.extname(params['file'][:filename]).downcase
+      # Parse exif data
+      p params
+      exif = MiniExiftool.new(params['file'][:tempfile].path)
+      time = exif.date_time_original
+      destpath = File.join(root_dir, time.strftime("%Y/%m/"))
+      destfn = time.strftime("%FT%H%M%S#{fileinfo[:ext]}")
+      destination = File.join(destpath, destfn)
+      fileinfo[:destination] = destination
+      FileUtils.mkdir_p destpath if not File.directory? destpath
+      File.open(destination, 'w') do |f|
+        f.write(params['file'][:tempfile].read)
+      end
+      fileinfo[:upload_date] = Time.now
+      db.set! md5, fileinfo
+      outcome[:fileinfo] = fileinfo
+      outcome[:uploaded] = true
+    ensure
+      db.close
     end
-    db.set! md5, { filename: params['file'][:filename], upload_date: Time.now }
-    outcome = "Uploaded."
   else
-    outcome = "File already uploaded on #{db[md5][:upload_date].strftime('%F %r')} with filename #{db[md5][:filename]}."
+    outcome = { uploaded: false, fileinfo: db[md5] }
+    db.close
   end
-  db.close
-  outcome
+  JSON.generate outcome
 end

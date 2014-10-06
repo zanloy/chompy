@@ -46,7 +46,7 @@ post '/upload' do
   # Validate input
   return "Error: File not in params." if not params['file']
   # Validate it is an image
-  return "Error: Filetype is not image/*" if not params['file'][:type] =~ /^image\//
+  return "Error: Filetype is not image/* (#{params['file'][:type]})" if not params['file'][:type] =~ /^image\//
   # Process
   db = Daybreak::DB.new 'chompy.db'
   md5 = Digest::MD5.hexdigest(File.read(params['file'][:tempfile]))
@@ -56,7 +56,6 @@ post '/upload' do
       fileinfo = { filename: params['file'][:filename], md5: md5 }
       fileinfo[:ext] = File.extname(params['file'][:filename]).downcase
       # Parse exif data
-      p params
       exif = MiniExiftool.new(params['file'][:tempfile].path)
       time = exif.date_time_original
       destpath = File.join(root_dir, time.strftime("%Y/%m/"))
@@ -67,6 +66,7 @@ post '/upload' do
       File.open(destination, 'w') do |f|
         f.write(params['file'][:tempfile].read)
       end
+      params['file'][:tempfile].unlink
       fileinfo[:upload_date] = Time.now
       db.set! md5, fileinfo
       outcome[:fileinfo] = fileinfo

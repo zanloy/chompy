@@ -46,7 +46,7 @@ post '/upload' do
   # Validate input
   return "Error: File not in params." if not params['file']
   # Validate it is an image
-  return "Error: Filetype is not image/* (#{params['file'][:type]})" if not params['file'][:type] =~ /^image\//
+  #return "Error: Filetype is not image/* (#{params['file'][:type]})" if not params['file'][:type] =~ /^image\//
   # Process
   db = Daybreak::DB.new 'chompy.db'
   md5 = Digest::MD5.hexdigest(File.read(params['file'][:tempfile]))
@@ -80,3 +80,26 @@ post '/upload' do
   end
   JSON.generate outcome
 end
+
+__END__
+@@check
+!!! 5
+%html
+  %body
+    %h1 Validate File
+    %form(method="post")
+      %label MD5:
+      %input(name="md5")
+      %br
+      %input(type="submit" value="Check")
+
+@@upload
+!!! 5
+%html
+  %body
+    %h1 Upload File
+    %form(method='post' enctype='multipart/form-data')
+      %label File:
+      %input(type='file' name='file')
+      %br
+      %input(type='submit' value='Upload')

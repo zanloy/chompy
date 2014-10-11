@@ -25,24 +25,28 @@ post '/upload' do
 end
 
 __END__
-@@ check
+
+@@ layout
 !!! 5
 %html
   %body
-    %h1 Check File
-    %form(method="post")
-      %label MD5:
-      %input(name="md5")
-      %br
-      %input(type="submit" value="Check")
+    %h1 Chompy
+    = yield
+
+@@ check
+!!! 5
+%h2 Check File
+%form(method="post")
+  %label MD5:
+  %input(name="md5")
+  %br
+  %input(type="submit" value="Check")
 
 @@ upload
 !!! 5
-%html
-  %body
-    %h1 Upload File
-    %form(method='post' enctype='multipart/form-data')
-      %label File:
-      %input(type='file' name='file')
-      %br
-      %input(type='submit' value='Upload')
+%h2 Upload File
+%form(method='post' enctype='multipart/form-data')
+  %label File:
+  %input(type='file' name='file')
+  %br
+  %input(type='submit' value='Upload')

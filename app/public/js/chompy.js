@@ -1,4 +1,5 @@
 "#btnStream".onClick(function(event) {
+  $('stream').html('');
   var source = new EventSource('/stream');
   source.onmessage = function(e) {
     console.log("Data received: " + e.data);

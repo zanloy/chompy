@@ -1,5 +1,4 @@
 .bundle
 *.db
-samples
-app/uploads
 *.swp
+app/uploads

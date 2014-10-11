@@ -1,12 +1,12 @@
 task :clean do
-  File.unlink('chompy.db') if File.exists? 'chompy.db'
-  FileUtils.rm_rf(Dir['./uploads/*'])
+  File.unlink('app/chompy.db') if File.exists? 'app/chompy.db'
+  FileUtils.rm_rf(Dir['app/uploads/*'])
 end
 
 task :compact do
-  if File.exists? 'chompy.db'
+  if File.exists? 'app/chompy.db'
     require 'daybreak'
-    db = Daybreak::DB.new('chompy.db')
+    db = Daybreak::DB.new('app/chompy.db')
     db.compact
     db.close
     puts "Database file compacted."

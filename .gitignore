@@ -1,4 +1,5 @@
 .bundle
-chompy.db
+*.db
 samples
-uploads
+app/uploads
+*.swp

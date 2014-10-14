@@ -28,14 +28,12 @@ def upload(dav, filename, tempfile=nil)
         stack.pop # Remove '.' from the end because we can't create
         stack.reverse_each do |dir|
           begin
-            puts "mkdir(#{dir})"
             dav.mkdir(dir)
           rescue
             raise unless dav.exists?(dir)
           end
         end
       end
-      puts "destination = #{destination}, tempfile = #{tempfile}"
       File.open(tempfile, 'rb') do |stream|
         dav.put(destination, stream, File.size(tempfile))
       end

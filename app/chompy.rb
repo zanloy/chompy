@@ -1,11 +1,16 @@
 #!/usr/bin/env ruby
 
 require 'haml'
-require 'sinatra'
 require 'json'
+require 'net/dav'
+require 'sinatra'
+require 'yaml'
 require_relative 'chompy_helper'
 
-set :bind, '0.0.0.0'
+config = YAML.load_file('chompy.yml')
+
+set :bind, config['bind'] if config['bind']
+set :port, config['port'] if config['port']
 
 pic_dir = "/home/zan/images"
 upload_dir = "uploads"
@@ -19,7 +24,10 @@ get('/stream', provides: 'text/event-stream') do
     cnt = { uploaded: 0, skipped: 0 }
     Dir[File.join(pic_dir, '*')].each do |file|
       out << "data: #{File.basename(file)}...\n\n"
-      result = upload(upload_dir, file)
+      dav = Net::DAV.new(config['owncloud']['davurl'])
+      dav.verify_server = false
+      dav.credentials(config['owncloud']['user'], config['owncloud']['password'])
+      result = upload(dav, file)
       if result[:uploaded]
         cnt[:uploaded] += 1
         out << "data: [<span class='green'>uploaded</span>]<br>\n\n"
@@ -28,8 +36,7 @@ get('/stream', provides: 'text/event-stream') do
         out << "data: [<span class='red'>skipped</span>]<br>\n\n"
       end
     end
-    end_time = Time.now
-    elapsed_time = end_time - start_time
+    elapsed_time = Time.now - start_time
     out << "data: Uploaded: #{cnt[:uploaded]}, Skipped: #{cnt[:skipped]}, Elapsed: #{elapsed_time}s\n\n"
     out << "event: close\n"
     out << "data: close\n\n"
@@ -47,7 +54,10 @@ post '/upload' do
   # Validate it is an image
   #return "Error: Filetype is not image/* (#{params['file'][:type]})" if not params['file'][:type] =~ /^image\//
   # Process
-  result = upload(upload_dir, params['file'][:filename], params['file'][:tempfile].path)
+  dav = Net::DAV.new(config['owncloud']['davurl'])
+  dav.verify_server = false
+  dav.credentials(config['owncloud']['user'], config['owncloud']['password'])
+  result = upload(dav, params['file'][:filename], params['file'][:tempfile].path)
   JSON.generate result
 end
 

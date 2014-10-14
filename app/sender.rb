@@ -36,6 +36,5 @@ files.each do |file|
     puts "Error: #{e}"
   end
 end
-end_time = Time.now
-elapsed_time = end_time - start_time
+elapsed_time = Time.now - start_time
 puts "Uploaded: #{cnt[:uploaded]}, Skipped: #{cnt[:skipped]}, Elapsed: #{elapsed_time}s"

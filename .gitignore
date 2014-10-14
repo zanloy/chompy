@@ -1,4 +1,5 @@
 .bundle
 *.db
 *.swp
+*.yml
 app/uploads

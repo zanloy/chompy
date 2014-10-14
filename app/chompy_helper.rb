@@ -2,7 +2,7 @@ require 'daybreak'
 require 'fileutils'
 require 'mini_exiftool'
 
-def upload(upload_dir, filename, tempfile=nil)
+def upload(dav, filename, tempfile=nil)
   tempfile ||= filename
   db = Daybreak::DB.new 'chompy.db'
   md5 = Digest::MD5.hexdigest(File.read(tempfile))
@@ -14,16 +14,32 @@ def upload(upload_dir, filename, tempfile=nil)
       # Parse exif data
       exif = MiniExiftool.new(tempfile)
       time = exif.date_time_original
-      destpath = File.join(upload_dir, time.strftime("%Y/%m/"))
+      destpath = time.strftime("%Y/%m/")
       destfn = time.strftime("%FT%H%M%S#{fileinfo[:ext]}")
-      destination = File.join(destpath, destfn)
+      destination = destpath + destfn
       fileinfo[:destination] = destination
-      FileUtils.mkdir_p destpath if not File.directory? destpath
-      #File.open(destination, 'w') do |f|
-      #  f.write(params['file'][:tempfile].read)
-      #end
-      FileUtils.cp tempfile, destination
-      #params['file'][:tempfile].unlink
+      #FileUtils.mkdir_p destpath if not File.directory? destpath
+      if not dav.exists?(destpath)
+        stack = []
+        until destpath == stack.last
+          stack.push destpath
+          destpath = File.dirname(destpath)
+        end
+        stack.pop # Remove '.' from the end because we can't create
+        stack.reverse_each do |dir|
+          begin
+            puts "mkdir(#{dir})"
+            dav.mkdir(dir)
+          rescue
+            raise unless dav.exists?(dir)
+          end
+        end
+      end
+      puts "destination = #{destination}, tempfile = #{tempfile}"
+      File.open(tempfile, 'rb') do |stream|
+        dav.put(destination, stream, File.size(tempfile))
+      end
+      #FileUtils.cp tempfile, destination
       fileinfo[:upload_date] = Time.now
       db.set! md5, fileinfo
       outcome[:fileinfo] = fileinfo

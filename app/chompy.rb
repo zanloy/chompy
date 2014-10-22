@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require 'haml'
 require 'json'
 require 'net/dav'
+require 'slim'
 require 'sinatra'
 require 'yaml'
 require_relative 'chompy_helper'
@@ -16,7 +16,7 @@ pic_dir = "/home/zan/images"
 upload_dir = "uploads"
 
 # Sinatra routes
-get('/'){ haml :index }
+get('/'){ slim :index }
 
 get('/stream', provides: 'text/event-stream') do
   stream do |out|
@@ -43,11 +43,11 @@ get('/stream', provides: 'text/event-stream') do
   end
 end
 
-get('/check') { haml :check }
+get('/check') { slim :check }
 post('/check') { JSON.generate(check_hash(params['md5'])) }
 get('/check/:hash') { |hash| JSON.generate(check_hash(hash)) }
 
-get('/upload') { haml :upload }
+get('/upload') { slim :upload }
 post '/upload' do
   # Validate input
   return "Error: File not in params." if not params['file']
